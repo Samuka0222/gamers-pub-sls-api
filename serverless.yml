@@ -107,3 +107,10 @@ functions:
       - httpApi:
           path: /
           method: get
+  signUp:
+    handler: src/functions/auth/signUp.handler
+    events:
+      - httpApi:
+          path: /auth/sign-up
+          method: POST
+
