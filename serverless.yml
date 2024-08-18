@@ -131,3 +131,23 @@ functions:
       - httpApi:
           path: /auth/refresh-token
           method: POST
+  forgotPassword:
+    handler: src/functions/auth/forgotPassword.handler
+    events:
+      - httpApi:
+          path: /auth/forgot-password
+          method: POST
+  resetPassword:
+    handler: src/functions/auth/resetPassword.handler
+    events:
+      - httpApi:
+          path: /auth/reset-password
+          method: POST
+  cognitoCustomMessage:
+    handler: src/functions/auth/cognitoCustomMessage.handler
+    events:
+      - cognitoUserPool:
+          pool: GamersPubUserPool
+          trigger: CustomMessage
+          existing: true
+          forceDeploy: true
