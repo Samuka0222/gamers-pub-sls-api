@@ -106,11 +106,28 @@ functions:
     events:
       - httpApi:
           path: /
-          method: get
+          method: GET
   signUp:
     handler: src/functions/auth/signUp.handler
     events:
       - httpApi:
           path: /auth/sign-up
           method: POST
-
+  signIn:
+    handler: src/functions/auth/signIn.handler
+    events:
+      - httpApi:
+          path: /auth/sign-in
+          method: POST
+  accountConfirmation:
+    handler: src/functions/auth/accountConfirmation.handler
+    events:
+      - httpApi:
+          path: /auth/verify-account
+          method: POST
+  refreshToken:
+    handler: src/functions/auth/refreshToken.handler
+    events:
+      - httpApi:
+          path: /auth/refresh-token
+          method: POST
