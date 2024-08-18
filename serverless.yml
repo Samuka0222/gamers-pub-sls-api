@@ -5,9 +5,100 @@ app: gamers-pub-api
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: gamerspub-sls-api
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs20.x
+  deploymentMethod: direct
+  architecture: arm64
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminDeleteUser
+            - cognito-idp:AdminUpdateUserAttributes
+            - cognito-idp:AdminGetUser
+            # - dynamodb:PutItem
+            # - dynamodb:GetItem
+            # - dynamodb:DeleteItem
+            # - dynamodb:UpdateItem
+            # - dynamodb:Scan
+          Resource:
+            - !GetAtt GamersPubUserPool.Arn
+            # - !GetAtt TodosTable.Arn
+  environment:
+    COGNITO_CLIENT_ID: !Ref GamersPubUserPoolClient
+    COGNITO_POOL_ID: !Ref GamersPubUserPool
+  httpApi:
+    authorizers:
+      CognitoAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !GetAtt GamersPubUserPool.ProviderURL
+        audience:
+          - !Ref GamersPubUserPoolClient
+
+custom:
+  Esbuild:
+  bundle: true
+  minify: true
+  sourcemap: false
+  target: node20
+  exclude:
+    - "@aws-sdk/*"
+  platform: node
+  concurrency: 10
+
+resources:
+  Resources:
+    GamersPubUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: GamersPubUserPool
+        MfaConfiguration: OFF
+        AutoVerifiedAttributes:
+          - email
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: false
+        UsernameAttributes:
+          - email
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: true
+            RequireUppercase: true
+            TemporaryPasswordValidityDays: 2
+        Schema:
+          - Name: given_name
+            Mutable: true
+            Required: true
+            AttributeDataType: String
+          - Name: family_name
+            Mutable: true
+            Required: true
+            AttributeDataType: String
+    GamersPubUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: GamersPubUserPoolClient
+        UserPoolId: !Ref GamersPubUserPool
+        ExplicitAuthFlows:
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        AccessTokenValidity: 1
+        RefreshTokenValidity: 30
+        TokenValidityUnits:
+          AccessToken: days
+          RefreshToken: days
 
 functions:
   hello:
