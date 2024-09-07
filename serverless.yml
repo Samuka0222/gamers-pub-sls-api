@@ -21,14 +21,14 @@ provider:
             - cognito-idp:AdminDeleteUser
             - cognito-idp:AdminUpdateUserAttributes
             - cognito-idp:AdminGetUser
-            # - dynamodb:PutItem
-            # - dynamodb:GetItem
-            # - dynamodb:DeleteItem
-            # - dynamodb:UpdateItem
-            # - dynamodb:Scan
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:DeleteItem
+            - dynamodb:UpdateItem
+            - dynamodb:Scan
           Resource:
             - !GetAtt GamersPubUserPool.Arn
-            # - !GetAtt TodosTable.Arn
+            - !GetAtt GamersPubTable.Arn
   environment:
     COGNITO_CLIENT_ID: !Ref GamersPubUserPoolClient
     COGNITO_POOL_ID: !Ref GamersPubUserPool
@@ -78,6 +78,10 @@ resources:
             RequireUppercase: true
             TemporaryPasswordValidityDays: 2
         Schema:
+          - Name: nickname
+            Mutable: true
+            Required: true
+            AttributeDataType: String
           - Name: given_name
             Mutable: true
             Required: true
@@ -99,6 +103,37 @@ resources:
         TokenValidityUnits:
           AccessToken: days
           RefreshToken: days
+    GamersPubTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: GamersPubTable
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S #S == String / N == Number / B == Binary
+          - AttributeName: sk
+            AttributeType: S
+          - AttributeName: gsi1_pk
+            AttributeType: S
+          - AttributeName: gsi1_sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: gsi1
+            KeySchema:
+            - AttributeName: gsi1_pk
+              KeyType: HASH
+            - AttributeName: gsi1_sk
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
 
 functions:
   hello:
@@ -125,6 +160,7 @@ functions:
       - httpApi:
           path: /auth/verify-account
           method: POST
+    timeout: 10
   refreshToken:
     handler: src/functions/auth/refreshToken.handler
     events:
@@ -150,4 +186,12 @@ functions:
           pool: GamersPubUserPool
           trigger: CustomMessage
           existing: true
-          forceDeploy: true
+          # forceDeploy: true
+  storeUser:
+    handler: src/functions/auth/storeUser.handler
+    events:
+      - cognitoUserPool:
+          pool: GamersPubUserPool
+          trigger: PostConfirmation
+          existing: true
+          # forceDeploy: true

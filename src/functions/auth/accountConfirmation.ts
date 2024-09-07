@@ -30,6 +30,6 @@ export async function handler(event: APIGatewayProxyEventV2) {
 			return response(404, { message: 'User not found' });
 		}
 
-		return response(500, { message: 'ERROR: Try again' });
+		return response(500, { error });
 	}
 }

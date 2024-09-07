@@ -18,6 +18,10 @@ export async function handler(event: APIGatewayProxyEventV2) {
 			Password: body.password,
 			UserAttributes: [
 				{
+					Name: 'nickname',
+					Value: body.username,
+				},
+				{
 					Name: 'given_name',
 					Value: body.firstName,
 				},
