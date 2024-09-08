@@ -47,7 +47,6 @@ export async function handler(event: APIGatewayProxyEventV2) {
 			return response(401, { message: 'User not confirmed' });
 		}
 
-		console.log(error);
 		return response(500, { message: 'ERROR: Try again later /' + error });
 	}
 }

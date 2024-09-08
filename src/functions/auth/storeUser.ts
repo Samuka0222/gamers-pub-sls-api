@@ -2,16 +2,15 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient } from '@libs/dynamoClient';
 import { response } from '@utils/response';
 import { PostConfirmationConfirmSignUpTriggerEvent } from 'aws-lambda';
-import { randomUUID } from 'crypto';
 
 export async function handler(
 	event: PostConfirmationConfirmSignUpTriggerEvent,
 ) {
 	try {
-		const { email, given_name, family_name, nickname } =
+		const { email, given_name, family_name, nickname, sub } =
 			event.request.userAttributes;
 
-		const pk = `USER#${randomUUID()}`;
+		const pk = `USER#${sub}}`;
 		const command = new PutCommand({
 			TableName: 'GamersPubTable',
 			Item: {
@@ -21,18 +20,17 @@ export async function handler(
 				email,
 				first_name: given_name,
 				last_name: family_name,
-				username: nickname,
+				username: nickname ?? '(Not informed)',
 				created_at: new Date().toISOString(),
 				gsi1_pk: email,
 				gsi1_sk: 'user',
 			},
 		});
 
-		const storeUserAction = await dynamoClient.send(command);
+		await dynamoClient.send(command);
 
-		return response(201, { storeUserAction });
+		return response(201);
 	} catch (error) {
-		console.log(error);
 		return response(500, { error });
 	}
 }

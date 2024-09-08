@@ -7,6 +7,8 @@ service: gamerspub-sls-api
 
 package:
   individually: true
+  patterns:
+    - '!node_modules/**'
 
 provider:
   name: aws
@@ -48,6 +50,7 @@ custom:
   sourcemap: false
   target: node20
   exclude:
+    - "node_modules/**"
     - "@aws-sdk/*"
   platform: node
   concurrency: 10
@@ -80,7 +83,7 @@ resources:
         Schema:
           - Name: nickname
             Mutable: true
-            Required: true
+            Required: false
             AttributeDataType: String
           - Name: given_name
             Mutable: true
@@ -195,3 +198,19 @@ functions:
           trigger: PostConfirmation
           existing: true
           # forceDeploy: true
+  createReview:
+    handler: src/functions/reviews/createReview.handler
+    events:
+      - httpApi:
+          path: /reviews
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  getReviewsByUser:
+    handler: src/functions/reviews/getReviewsByUser.handler
+    events:
+      - httpApi:
+          path: /reviews
+          method: GET
+          authorizer:
+            name: CognitoAuthorizer
