@@ -158,6 +158,7 @@ functions:
           path: /auth/sign-in
           method: POST
   accountConfirmation:
+  # TODO: Resolve InvalidLambdaException error
     handler: src/functions/auth/accountConfirmation.handler
     events:
       - httpApi:
@@ -207,6 +208,7 @@ functions:
           authorizer:
             name: CognitoAuthorizer
   getReviewsByUser:
+  # TODO: Ensure that pagination is working properly
     handler: src/functions/reviews/getReviewsByUser.handler
     events:
       - httpApi:
@@ -238,3 +240,13 @@ functions:
         method: DELETE
         authorizer:
           name: CognitoAuthorizer
+  # sendChatbotMessage:
+  # # TODO: Enhance this function
+  #   handler: src/functions/chatbot/sendChatbotMessage.handler
+  #   events:
+  #     - httpApi:
+  #         path: /chatbot/send-message
+  #         method: POST
+  #         authorizer:
+  #           name: CognitoAuthorizer
+  #   timeout: 12

@@ -23,6 +23,8 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.632.0",
     "@aws-sdk/client-dynamodb": "^3.645.0",
-    "@aws-sdk/lib-dynamodb": "^3.645.0"
+    "@aws-sdk/lib-dynamodb": "^3.645.0",
+    "@google/generative-ai": "^0.17.1",
+    "dotenv": "^16.4.5"
   }
 }
