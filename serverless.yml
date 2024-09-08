@@ -214,3 +214,27 @@ functions:
           method: GET
           authorizer:
             name: CognitoAuthorizer
+  getReviewById:
+    handler: src/functions/reviews/getReviewById.handler
+    events:
+      - httpApi:
+          path: /reviews/{reviewId}
+          method: GET
+          authorizer:
+            name: CognitoAuthorizer
+  updateReview:
+    handler: src/functions/reviews/updateReview.handler
+    events:
+    - httpApi:
+        path: /reviews/{reviewId}
+        method: PUT
+        authorizer:
+          name: CognitoAuthorizer
+  deleteReview:
+    handler: src/functions/reviews/deleteReview.handler
+    events:
+    - httpApi:
+        path: /reviews/{reviewId}
+        method: DELETE
+        authorizer:
+          name: CognitoAuthorizer

@@ -10,7 +10,7 @@ export async function handler(
 		const { email, given_name, family_name, nickname, sub } =
 			event.request.userAttributes;
 
-		const pk = `USER#${sub}}`;
+		const pk = `USER#${sub}`;
 		const command = new PutCommand({
 			TableName: 'GamersPubTable',
 			Item: {
