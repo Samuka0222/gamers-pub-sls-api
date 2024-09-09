@@ -287,13 +287,19 @@ functions:
         method: DELETE
         authorizer:
           name: CognitoAuthorizer
-  # sendChatbotMessage:
-  # # TODO: Enhance this function
-  #   handler: src/functions/chatbot/sendChatbotMessage.handler
-  #   events:
-  #     - httpApi:
-  #         path: /chatbot/send-message
-  #         method: POST
-  #         authorizer:
-  #           name: CognitoAuthorizer
-  #   timeout: 12
+  getPresignedUrl:
+    handler: src/functions/uploads/getPresignedUrl.handler
+    events:
+      - httpApi:
+          path: /uploads/uploadFile
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  getFileWithPresignedUrl:
+    handler: src/functions/uploads/getFileWithPresignedUrl.handler
+    events:
+      - httpApi:
+          path: /uploads/getFile
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer

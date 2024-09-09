@@ -41,6 +41,15 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		console.log(event.body);
 		const { userChatbotHistory, userPrompt } = bodyParser(event.body);
 
+		chatHistory.concat({
+			role: 'user',
+			parts: [
+				{
+					text: userPrompt,
+				},
+			],
+		});
+
 		if (userChatbotHistory) {
 			chatHistory.concat(userChatbotHistory);
 		}
@@ -73,6 +82,12 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		const result = await chat.sendMessage(prompt);
 		const response = await result.response;
 		const text = response.text();
+
+		if (text.includes('ERROR')) {
+			return responseOperation(500, {
+				message: 'Error processing the request',
+			});
+		}
 		return responseOperation(200, { text });
 	} catch (error) {
 		console.log(error);
@@ -93,3 +108,14 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		}
 	}
 }
+
+// # sendChatbotMessage:
+// # # TODO: Enhance this function
+// #   handler: src/functions/chatbot/sendChatbotMessage.handler
+// #   events:
+// #     - httpApi:
+// #         path: /chatbot/send-message
+// #         method: POST
+// #         authorizer:
+// #           name: CognitoAuthorizer
+// #   timeout: 12
