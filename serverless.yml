@@ -42,6 +42,24 @@ provider:
         issuerUrl: !GetAtt GamersPubUserPool.ProviderURL
         audience:
           - !Ref GamersPubUserPoolClient
+    cors:
+      allowedOrigins:
+        - "http://localhost:3000"
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Amz-Date
+        - X-Api-Key
+        - X-Amz-Security-Token
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - HEAD
+        - OPTIONS
+      maxAge: 300
 
 custom:
   Esbuild:
@@ -136,6 +154,28 @@ resources:
               KeyType: RANGE
             Projection:
               ProjectionType: ALL
+    GamersPubBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: gamers-pub-bucket
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+              - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              AllowedOrigins:
+                - "http://localhost:3000"
+              ExposedHeaders:
+                - Etag
+                - x-amz-meta-custom-header
+                - Content-Length
+              MaxAge: 3000
+
 
 
 functions:
@@ -198,7 +238,14 @@ functions:
           pool: GamersPubUserPool
           trigger: PostConfirmation
           existing: true
-          # forceDeploy: true
+  updateUser:
+    handler: src/functions/users/updateUser.handler
+    events:
+      - httpApi:
+          path: /users
+          method: PUT
+          authorizer:
+            name: CognitoAuthorizer
   createReview:
     handler: src/functions/reviews/createReview.handler
     events:
