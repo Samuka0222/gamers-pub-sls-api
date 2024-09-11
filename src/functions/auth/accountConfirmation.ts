@@ -1,6 +1,8 @@
 import {
 	CodeMismatchException,
 	ConfirmSignUpCommand,
+	InvalidLambdaResponseException,
+	UnexpectedLambdaException,
 	UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { cognitoClient } from '@libs/cognitoClient';
@@ -28,6 +30,13 @@ export async function handler(event: APIGatewayProxyEventV2) {
 
 		if (error instanceof UserNotFoundException) {
 			return response(404, { message: 'User not found' });
+		}
+
+		if (
+			error instanceof InvalidLambdaResponseException ||
+			error instanceof UnexpectedLambdaException
+		) {
+			return response(200, { message: 'Account confirmed successfully!' });
 		}
 
 		return response(500, { error });

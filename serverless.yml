@@ -204,7 +204,6 @@ functions:
       - httpApi:
           path: /auth/verify-account
           method: POST
-    timeout: 10
   refreshToken:
     handler: src/functions/auth/refreshToken.handler
     events:

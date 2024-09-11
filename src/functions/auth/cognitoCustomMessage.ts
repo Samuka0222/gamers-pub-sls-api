@@ -12,17 +12,19 @@ export async function handler(event: CustomMessageTriggerEvent) {
     Esperamos que você aproveite sua passagem por aqui!
     <br/> <br/>
     Para confirmar a sua conta: <br/>
-    acesse: (inserir link depois) <br/>
-    E use este código para confirmar a sua conta:
+    Acesse: <a href="http://localhost:3000/auth/verify-account/?email=${encodeURIComponent(email)}">https://gamers-pub/auth/verify-account</a> <br/>
+    E use o código abaixo para confirmar a sua conta:
     ${code}
     `;
 	}
 
 	if (event.triggerSource === 'CustomMessage_ForgotPassword') {
 		event.response.emailSubject = 'Recuperação de conta';
-		event.response.emailMessage = `Para recuperar sua conta,
-    acesse: <strong>
-    http://app.seuapp.com.br/reset/?email=${encodeURIComponent(email)}&code=${code}
+		event.response.emailMessage = `<h1>Esqueceu sua senha? </h1>
+    <br/> <br/>
+    Para recuperar sua conta, acesseu o link abaixo e crie sua nova senha: <br/>
+    <strong>
+    http://localhost:3000/auth/reset-password/?email=${encodeURIComponent(email)}&code=${code}
     </strong>`;
 	}
 
