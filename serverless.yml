@@ -216,6 +216,7 @@ functions:
       - httpApi:
           path: /auth/forgot-password
           method: POST
+  # TODO: Resolve InvalidLambdaException error
   resetPassword:
     handler: src/functions/auth/resetPassword.handler
     events:

@@ -21,8 +21,10 @@ export async function handler(event: CustomMessageTriggerEvent) {
 	if (event.triggerSource === 'CustomMessage_ForgotPassword') {
 		event.response.emailSubject = 'Recuperação de conta';
 		event.response.emailMessage = `<h1>Esqueceu sua senha? </h1>
-    <br/> <br/>
-    Para recuperar sua conta, acesseu o link abaixo e crie sua nova senha: <br/>
+    <br/>
+    <h2>3º passo: Clique no link abaixo e crie sua nova senha.</h2>
+    <br/>
+    Para recuperar sua conta, acesse o link abaixo e crie sua nova senha: <br/>
     <strong>
     http://localhost:3000/auth/reset-password/?email=${encodeURIComponent(email)}&code=${code}
     </strong>`;

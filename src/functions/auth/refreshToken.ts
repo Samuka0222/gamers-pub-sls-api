@@ -22,8 +22,8 @@ export async function handler(event: APIGatewayProxyEventV2) {
 			return response(401, { error: 'Invalid token' });
 		}
 
-		const { AccessToken } = AuthenticationResult;
-		return response(200, { AccessToken });
+		const { AccessToken, RefreshToken, ExpiresIn } = AuthenticationResult;
+		return response(200, { AccessToken, RefreshToken, ExpiresIn });
 	} catch (error) {
 		return response(500, { message: 'ERROR: Try again later.' });
 	}

@@ -28,11 +28,12 @@ export async function handler(event: APIGatewayProxyEventV2) {
 			return response(401, { error: 'Invalid Credentials' });
 		}
 
-		const { AccessToken, RefreshToken } = AuthenticationResult;
+		const { AccessToken, RefreshToken, ExpiresIn } = AuthenticationResult;
 
 		return response(200, {
 			AccessToken,
 			RefreshToken,
+			ExpiresIn,
 		});
 	} catch (error) {
 		if (error instanceof UserNotFoundException) {
