@@ -21,6 +21,7 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 				pk: `USER#${userId}`,
 				sk: `REVIEW#${reviewId}`,
 			},
+			AttributesToGet: ['created_at', 'review'],
 		});
 
 		const { Item } = await dynamoClient.send(command);

@@ -33,9 +33,10 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			},
 			Limit: 5,
 			ExclusiveStartKey: lastItem ?? undefined,
+			AttributesToGet: ['created_at', 'review'],
 		});
-		const result = await dynamoClient.send(command);
-		return response(200, { result });
+		const { Items, LastEvaluatedKey } = await dynamoClient.send(command);
+		return response(200, { Items, LastEvaluatedKey });
 	} catch (error) {
 		if (error instanceof ResourceNotFoundException) {
 			return response(404, 'Reviews not found');

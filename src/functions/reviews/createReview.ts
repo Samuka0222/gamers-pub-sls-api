@@ -19,14 +19,14 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			return response(400, 'Invalid review data');
 		}
 
-		const sk = `REVIEW#${randomUUID()}`;
+		const id = `${randomUUID()}`;
 		const command = new PutCommand({
 			TableName: 'GamersPubTable',
 			Item: {
 				pk: `USER#${userId}`,
-				sk,
+				sk: `REVIEW#${id}`,
 				entity_type: 'review',
-				review: { ...review },
+				review: { id, ...review },
 				created_at: new Date().toISOString(),
 			},
 		});

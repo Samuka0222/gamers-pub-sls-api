@@ -120,7 +120,7 @@ resources:
           - ALLOW_USER_PASSWORD_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         AccessTokenValidity: 1
-        RefreshTokenValidity: 30
+        RefreshTokenValidity: 15
         TokenValidityUnits:
           AccessToken: days
           RefreshToken: days
@@ -238,6 +238,14 @@ functions:
           pool: GamersPubUserPool
           trigger: PostConfirmation
           existing: true
+  getUserInformation:
+    handler: src/functions/users/getUserInformation.handler
+    events:
+      - httpApi:
+          path: /users
+          method: GET
+          authorizer:
+            name: CognitoAuthorizer
   updateUser:
     handler: src/functions/users/updateUser.handler
     events:
