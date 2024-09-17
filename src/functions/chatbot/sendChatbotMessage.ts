@@ -8,8 +8,12 @@ import {
 	GoogleGenerativeAIFetchError,
 	GoogleGenerativeAIRequestInputError,
 	GoogleGenerativeAIResponseError,
+	Content,
 } from '@google/generative-ai';
 import { response as responseOperation } from '@utils/response';
+import { dynamoClient } from '@libs/dynamoClient';
+import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { randomUUID } from 'crypto';
 
 export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 	try {
@@ -19,7 +23,12 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			return responseOperation(401, 'Unauthorized');
 		}
 
-		const chatHistory = [
+		const { chatHistoryId } = event.pathParameters!;
+		const { userPrompt } = bodyParser(event.body);
+
+		const id = chatHistoryId !== '' ? chatHistoryId : randomUUID();
+
+		const chatbotInstructions: Content[] = [
 			{
 				role: 'user',
 				parts: [
@@ -38,26 +47,46 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			},
 		];
 
-		console.log(event.body);
-		const { userChatbotHistory, userPrompt } = bodyParser(event.body);
+		const getChatHistory = async () => {
+			if (!chatHistoryId) {
+				try {
+					const command = new PutCommand({
+						TableName: 'GamersPubTable',
+						Item: {
+							pk: `USER#${userId}`,
+							sk: `CH#${id}`,
+							entity_type: 'chatbot-history',
+							chatbot_history: [],
+							created_at: new Date().toISOString(),
+						},
+					});
 
-		chatHistory.concat({
-			role: 'user',
-			parts: [
-				{
-					text: userPrompt,
-				},
-			],
-		});
+					await dynamoClient.send(command);
+					return { id, chatbotHistory: [] };
+				} catch (error) {
+					throw new Error('It was not possible to create this chat.');
+				}
+			} else {
+				try {
+					const command = new GetCommand({
+						TableName: 'GamersPubTable',
+						Key: {
+							pk: `USER#${userId}`,
+							sk: `CH#${chatHistoryId}`,
+						},
+						AttributesToGet: ['created_at', 'chatbot_history'],
+					});
 
-		if (userChatbotHistory) {
-			chatHistory.concat(userChatbotHistory);
-		}
+					const { Item } = await dynamoClient.send(command);
+					return { id: chatHistoryId, chatbotHistory: Item!.chatbot_history };
+				} catch (error) {
+					throw new Error('It was not possible to get the chat history.');
+				}
+			}
+		};
 
-		console.log(userPrompt);
-		console.log(
-			userChatbotHistory ? userChatbotHistory : 'Nenhum histórico encontrado',
-		);
+		const conversationHistory = (await getChatHistory())
+			.chatbotHistory as Content[];
 
 		const safetySettings = [
 			{
@@ -72,7 +101,7 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		});
 
 		const chat = model.startChat({
-			history: chatHistory,
+			history: [...chatbotInstructions, ...conversationHistory],
 			generationConfig: {
 				temperature: 1,
 			},
@@ -88,9 +117,46 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 				message: 'Error processing the request',
 			});
 		}
-		return responseOperation(200, { text });
+
+		const updatedChatHistory = [
+			...conversationHistory,
+			{
+				role: 'user',
+				parts: [
+					{
+						text: prompt,
+					},
+				],
+			},
+			{
+				role: 'model',
+				parts: [
+					{
+						text: text,
+					},
+				],
+			},
+		];
+
+		const command = new UpdateCommand({
+			TableName: 'GamersPubTable',
+			Key: {
+				pk: `USER#${userId}`,
+				sk: `CH#${id}`,
+			},
+			UpdateExpression: 'set #chatbot_history = :ch',
+			ExpressionAttributeNames: {
+				'#chatbot_history': 'chatbot_history',
+			},
+			ExpressionAttributeValues: {
+				':ch': updatedChatHistory,
+			},
+		});
+
+		await dynamoClient.send(command);
+
+		return responseOperation(200, { id, updatedChatHistory, text });
 	} catch (error) {
-		console.log(error);
 		if (error instanceof GoogleGenerativeAIError) {
 			return responseOperation(500, { message: error.message });
 		}
@@ -108,14 +174,3 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		}
 	}
 }
-
-// # sendChatbotMessage:
-// # # TODO: Enhance this function
-// #   handler: src/functions/chatbot/sendChatbotMessage.handler
-// #   events:
-// #     - httpApi:
-// #         path: /chatbot/send-message
-// #         method: POST
-// #         authorizer:
-// #           name: CognitoAuthorizer
-// #   timeout: 12

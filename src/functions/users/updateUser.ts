@@ -10,7 +10,6 @@ import { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 	try {
 		const userId = event.requestContext.authorizer.jwt.claims.sub as string;
-		console.log(userId);
 		if (!userId) {
 			return response(401, { message: 'Unauthorized' });
 		}

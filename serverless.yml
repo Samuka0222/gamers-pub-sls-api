@@ -295,19 +295,44 @@ functions:
         method: DELETE
         authorizer:
           name: CognitoAuthorizer
-  getPresignedUrl:
-    handler: src/functions/uploads/getPresignedUrl.handler
+  getUserChatbotHistory:
+    handler: src/functions/chatbot/getUserChatbotHistory.handler
     events:
       - httpApi:
-          path: /uploads/uploadFile
-          method: POST
+          path: /chatbot
+          method: GET
           authorizer:
             name: CognitoAuthorizer
-  getFileWithPresignedUrl:
-    handler: src/functions/uploads/getFileWithPresignedUrl.handler
+  sendChatbotMessage:
+    handler: src/functions/chatbot/sendChatbotMessage.handler
+    events:
+     - httpApi:
+         path: /chatbot/{chatHistoryId}
+         method: POST
+         authorizer:
+           name: CognitoAuthorizer
+    timeout: 12
+  deleteChatbotHistory:
+    handler: src/functions/chatbot/deleteChatbotHistory.handler
     events:
       - httpApi:
-          path: /uploads/getFile
-          method: POST
+          path: /chatbot/{chatHistoryId}
+          method: DELETE
           authorizer:
             name: CognitoAuthorizer
+  # getPresignedUrl:
+  #   handler: src/functions/uploads/getPresignedUrl.handler
+  #   events:
+  #     - httpApi:
+  #         path: /uploads/uploadFile
+  #         method: POST
+  #         authorizer:
+  #           name: CognitoAuthorizer
+  # getFileWithPresignedUrl:
+  #   handler: src/functions/uploads/getFileWithPresignedUrl.handler
+  #   events:
+  #     - httpApi:
+  #         path: /uploads/getFile
+  #         method: POST
+  #         authorizer:
+  #           name: CognitoAuthorizer

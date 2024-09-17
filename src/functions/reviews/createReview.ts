@@ -34,7 +34,6 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 		await dynamoClient.send(command);
 		return response(201, { message: 'Review created successfully' });
 	} catch (error) {
-		console.log(error);
 		return response(500, { error: 'Error creating review ' + error });
 	}
 }

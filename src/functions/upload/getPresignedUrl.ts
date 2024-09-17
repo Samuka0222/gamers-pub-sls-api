@@ -50,7 +50,6 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 
 		return response(200, { signedUrl, fileKey });
 	} catch (error) {
-		console.log(error);
 		if (error instanceof S3ServiceException) {
 			return response(400, {
 				error: error.message,

@@ -10,21 +10,21 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			return response(401, 'Unauthorized');
 		}
 
-		const { reviewId } = event.pathParameters!;
-		if (!reviewId) {
-			return response(400, 'Invalid reviewId');
+		const { chatHistoryId } = event.pathParameters!;
+		if (!chatHistoryId) {
+			return response(400, 'Invalid chatbotHistoryId');
 		}
 
 		const command = new DeleteCommand({
 			TableName: 'GamersPubTable',
 			Key: {
 				pk: `USER#${userId}`,
-				sk: `REVIEW#${reviewId}`,
+				sk: `CH#${chatHistoryId}`,
 			},
 		});
 
 		await dynamoClient.send(command);
-		return response(200, { message: 'Review deleted successfully' });
+		return response(200, { message: 'Chatbot History deleted successfully' });
 	} catch (error) {
 		return response(500, { error });
 	}
