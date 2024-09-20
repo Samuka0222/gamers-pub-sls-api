@@ -1,15 +1,10 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
-import {
-	GetObjectCommand,
-	S3Client,
-	S3ServiceException,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { response } from '../../utils/response';
 import { bodyParser } from '../../utils/bodyParser';
-
-const s3Client = new S3Client();
+import { s3Client } from '@libs/s3Client';
 
 export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 	try {

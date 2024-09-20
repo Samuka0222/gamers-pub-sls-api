@@ -28,9 +28,16 @@ provider:
             - dynamodb:DeleteItem
             - dynamodb:UpdateItem
             - dynamodb:Scan
+            - s3:PutObject
+            - s3:GetObject
+            - s3:PutObjectAcl
+            - s3:GetObjectAcl
           Resource:
             - !GetAtt GamersPubUserPool.Arn
             - !GetAtt GamersPubTable.Arn
+            - !GetAtt GamersPubBucket.Arn
+            - !Join ['', [!GetAtt GamersPubBucket.Arn, '/*']]
+            - !GetAtt GamersPubBucket.Arn
   environment:
     COGNITO_CLIENT_ID: !Ref GamersPubUserPoolClient
     COGNITO_POOL_ID: !Ref GamersPubUserPool
@@ -279,6 +286,12 @@ functions:
           method: GET
           authorizer:
             name: CognitoAuthorizer
+  getRandomReviews:
+    handler: src/functions/reviews/getRandomReviews.handler
+    events:
+      - httpApi:
+          path: /reviews/random
+          method: GET
   updateReview:
     handler: src/functions/reviews/updateReview.handler
     events:
@@ -303,6 +316,14 @@ functions:
           method: GET
           authorizer:
             name: CognitoAuthorizer
+  getChatbotHistoryById:
+    handler: src/functions/chatbot/getChatbotHistoryById.handler
+    events:
+      - httpApi:
+          path: /chatbot/{chatHistoryId}
+          method: GET
+          authorizer:
+            name: CognitoAuthorizer
   sendChatbotMessage:
     handler: src/functions/chatbot/sendChatbotMessage.handler
     events:
@@ -320,19 +341,28 @@ functions:
           method: DELETE
           authorizer:
             name: CognitoAuthorizer
-  # getPresignedUrl:
-  #   handler: src/functions/uploads/getPresignedUrl.handler
-  #   events:
-  #     - httpApi:
-  #         path: /uploads/uploadFile
-  #         method: POST
-  #         authorizer:
-  #           name: CognitoAuthorizer
-  # getFileWithPresignedUrl:
-  #   handler: src/functions/uploads/getFileWithPresignedUrl.handler
-  #   events:
-  #     - httpApi:
-  #         path: /uploads/getFile
-  #         method: POST
-  #         authorizer:
-  #           name: CognitoAuthorizer
+  getPresignedUrl:
+    handler: src/functions/upload/getPresignedUrl.handler
+    events:
+      - httpApi:
+          path: /uploads/upload-file
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  getFileWithPresignedUrl:
+    handler: src/functions/upload/getFileWithPresignedUrl.handler
+    events:
+      - httpApi:
+          path: /uploads/get-file
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  fileUploadTrigger:
+    handler: src/functions/upload/fileUploadTrigger.handler
+    events:
+      - s3:
+          bucket: gamers-pub-bucket
+          event: s3:ObjectCreated:Put
+          rules:
+            - prefix: uploads/
+          existing: true

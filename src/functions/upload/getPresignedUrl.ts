@@ -1,10 +1,8 @@
-import crypto, { randomUUID } from 'node:crypto';
-
 import { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client } from '@libs/s3Client';
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient } from '@libs/dynamoClient';
 import { response } from '../../utils/response';
 import { bodyParser } from '../../utils/bodyParser';
@@ -25,28 +23,61 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			});
 		}
 
-		const fileKey = `uploads/${crypto.randomUUID()}-${fileName}`;
+		const fileKey = `uploads/USER#${userId}`;
 
 		const s3Command = new PutObjectCommand({
 			Bucket: 'gamers-pub-bucket',
 			Key: fileKey,
 		});
 
-		const dynamoCommand = new PutCommand({
+		const itemAlreadyExist = new GetCommand({
 			TableName: 'GamersPubTable',
-			Item: {
+			Key: {
 				pk: `USER#${userId}`,
-				sk: `IMAGE#${randomUUID()}`,
-				fileKey: fileKey,
-				originalFileName: fileName,
-				status: 'PENDING',
+				sk: `IMAGE#${userId}`,
 			},
 		});
 
+		if (!itemAlreadyExist) {
+			const dynamoCommand = new PutCommand({
+				TableName: 'GamersPubTable',
+				Item: {
+					pk: `USER#${userId}`,
+					sk: `IMAGE#${userId}`,
+					entity_type: 'profile-picture',
+					file_key: fileKey,
+					original_file_name: fileName,
+					status: 'PENDING',
+				},
+			});
+
+			await dynamoClient.send(dynamoCommand);
+		} else {
+			const dynamoCommand = new UpdateCommand({
+				TableName: 'GamersPubTable',
+				Key: {
+					pk: `USER#${userId}`,
+					sk: `IMAGE#${userId}`,
+				},
+				UpdateExpression:
+					'set #file_key = :fk, #original_file_name = :ofn, #status = :s',
+				ExpressionAttributeNames: {
+					'#file_key': 'file_key',
+					'#original_file_name': 'original_file_name',
+					'#status': 'status',
+				},
+				ExpressionAttributeValues: {
+					':fk': fileKey,
+					':ofn': fileName,
+					':s': 'PENDING',
+				},
+			});
+
+			await dynamoClient.send(dynamoCommand);
+		}
 		const signedUrl = await getSignedUrl(s3Client, s3Command, {
 			expiresIn: 120,
 		});
-		await dynamoClient.send(dynamoCommand);
 
 		return response(200, { signedUrl, fileKey });
 	} catch (error) {
