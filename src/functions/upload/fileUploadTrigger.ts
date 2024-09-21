@@ -5,8 +5,6 @@ import { S3Event } from 'aws-lambda';
 export async function handler(event: S3Event) {
 	const commands = event.Records.map((record) => {
 		const fileKey = decodeURIComponent(record.s3.object.key);
-		console.log(fileKey);
-
 		const userId = fileKey.slice(13);
 
 		return new UpdateCommand({
@@ -20,7 +18,7 @@ export async function handler(event: S3Event) {
 				'#status': 'status',
 			},
 			ExpressionAttributeValues: {
-				':s': { S: 'COMPLETED' },
+				':s': 'COMPLETED',
 			},
 		});
 	});

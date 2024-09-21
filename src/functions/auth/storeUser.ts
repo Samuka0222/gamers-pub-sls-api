@@ -20,7 +20,7 @@ export async function handler(
 				email,
 				first_name: given_name,
 				last_name: family_name,
-				username: nickname ?? '(Not informed)',
+				username: nickname,
 				created_at: new Date().toISOString(),
 				gsi1_pk: email,
 				gsi1_sk: 'user',

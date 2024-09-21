@@ -349,14 +349,6 @@ functions:
           method: POST
           authorizer:
             name: CognitoAuthorizer
-  getFileWithPresignedUrl:
-    handler: src/functions/upload/getFileWithPresignedUrl.handler
-    events:
-      - httpApi:
-          path: /uploads/get-file
-          method: POST
-          authorizer:
-            name: CognitoAuthorizer
   fileUploadTrigger:
     handler: src/functions/upload/fileUploadTrigger.handler
     events:
