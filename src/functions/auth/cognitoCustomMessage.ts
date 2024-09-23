@@ -12,7 +12,7 @@ export async function handler(event: CustomMessageTriggerEvent) {
     Esperamos que você aproveite sua passagem por aqui!
     <br/> <br/>
     Para confirmar a sua conta: <br/>
-    Acesse: <a href="http://localhost:3000/auth/verify-account/?email=${encodeURIComponent(email)}">https://gamers-pub/auth/verify-account</a> <br/>
+    Acesse: <a href="https://gamers-pub-xi.vercel.app/auth/verify-account/?email=${encodeURIComponent(email)}">https://gamers-pub/auth/verify-account</a> <br/>
     E use o código abaixo para confirmar a sua conta:
     ${code}
     `;
@@ -26,7 +26,7 @@ export async function handler(event: CustomMessageTriggerEvent) {
     <br/>
     Para recuperar sua conta, acesse o link abaixo e crie sua nova senha: <br/>
     <strong>
-    http://localhost:3000/auth/reset-password/?email=${encodeURIComponent(email)}&code=${code}
+    https://gamers-pub-xi.vercel.app/auth/reset-password/?email=${encodeURIComponent(email)}&code=${code}
     </strong>`;
 	}
 

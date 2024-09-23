@@ -10,12 +10,11 @@ export async function handler(
 		const { email, given_name, family_name, nickname, sub } =
 			event.request.userAttributes;
 
-		const pk = `USER#${sub}`;
-		const command = new PutCommand({
+		const createUserRegisterCommand = new PutCommand({
 			TableName: 'GamersPubTable',
 			Item: {
-				pk,
-				sk: pk,
+				pk: `USER#${sub}`,
+				sk: `USER#${sub}`,
 				entity_type: 'user',
 				email,
 				first_name: given_name,
@@ -27,7 +26,7 @@ export async function handler(
 			},
 		});
 
-		await dynamoClient.send(command);
+		await dynamoClient.send(createUserRegisterCommand);
 
 		return response(201);
 	} catch (error) {

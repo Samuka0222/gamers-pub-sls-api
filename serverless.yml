@@ -52,6 +52,7 @@ provider:
     cors:
       allowedOrigins:
         - "http://localhost:3000"
+        - "https://gamers-pub-xi.vercel.app"
       allowedHeaders:
         - Content-Type
         - Authorization
@@ -177,13 +178,12 @@ resources:
                 - HEAD
               AllowedOrigins:
                 - "http://localhost:3000"
+                - "https://gamers-pub-xi.vercel.app"
               ExposedHeaders:
                 - Etag
                 - x-amz-meta-custom-header
                 - Content-Length
               MaxAge: 3000
-
-
 
 functions:
   hello:
@@ -347,6 +347,14 @@ functions:
       - httpApi:
           path: /uploads/upload-file
           method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  getFileWithPresignedUrl:
+    handler: src/functions/upload/getFileWithPresignedUrl.handler
+    events:
+      - httpApi:
+          path: /uploads/get-file
+          method: GET
           authorizer:
             name: CognitoAuthorizer
   fileUploadTrigger:
