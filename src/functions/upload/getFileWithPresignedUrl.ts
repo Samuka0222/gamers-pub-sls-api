@@ -31,7 +31,7 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 			});
 
 			const fileSignedUrl = await getSignedUrl(s3Client, s3Command, {
-				expiresIn: 500,
+				expiresIn: 3600,
 			});
 
 			return response(200, fileSignedUrl);

@@ -31,10 +31,10 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 					AttributeValueList: ['REVIEW#'],
 				},
 			},
-			Limit: 5,
-			ExclusiveStartKey: lastItem ?? undefined,
+			ExclusiveStartKey: lastItem ? lastItem : undefined,
 			AttributesToGet: ['created_at', 'review'],
 		});
+
 		const { Items, LastEvaluatedKey } = await dynamoClient.send(command);
 		return response(200, { Items, LastEvaluatedKey });
 	} catch (error) {

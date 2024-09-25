@@ -27,6 +27,7 @@
     "@aws-sdk/lib-dynamodb": "^3.645.0",
     "@aws-sdk/s3-request-presigner": "^3.645.0",
     "@google/generative-ai": "^0.17.1",
+    "@supabase/supabase-js": "^2.45.4",
     "dotenv": "^16.4.5"
   }
 }
